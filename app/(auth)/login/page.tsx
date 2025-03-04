@@ -13,7 +13,7 @@ import { toast, Toaster } from 'sonner';
 
 export default function Login() {
   const router = useRouter();
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,11 +22,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated" && session?.user) {
+    if (status === "authenticated") {
       toast.success("Already logged in! Redirecting...");
-      setTimeout(() => router.push("/dashboard"), 1500);
+      setTimeout(() => {
+        router.replace("/dashboard"); // ✅ Use `replace` to prevent going back to login
+      }, 1000);
     }
-  }, [status, session, router]);
+  }, [status, router]);  
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("savedEmail");
@@ -48,7 +50,7 @@ export default function Login() {
     const res = await signIn("credentials", { 
       email, 
       password, 
-      redirect: false // 🚀 Ensure redirect is false so we can manually handle it
+      redirect: false 
     });
   
     if (!res || res.error) {
@@ -56,15 +58,15 @@ export default function Login() {
       setLoading(false);
       return;
     }
-
-    await update?.();
+  
+    // 🚀 Force session refresh to ensure latest authentication state
+    await fetch("/api/auth/session");
   
     toast.success("Login successful! Redirecting...");
-  
     setTimeout(() => {
-      router.push("/dashboard"); // 🚀 Manually redirect after session update
-    }, 1500);
-  };
+      router.replace("/dashboard"); // ✅ Use `replace` for seamless redirect
+    }, 1000);
+  };  
 
   const handleLogout = async () => {
     if (loading) return; // Prevent multiple clicks
