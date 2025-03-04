@@ -72,6 +72,7 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async session({ session, token }) {
+      console.log("Session Callback Triggered");
       session.user = {
         name: token.name ?? null,
         email: token.email ?? null,
@@ -80,6 +81,7 @@ export const authOptions: AuthOptions = {
       return session;
     },
     async jwt({ token, user }) {
+      console.log("JWT Callback Triggered");
       if (user) {
         token.name = user.name ?? null;
         token.email = user.email ?? null;

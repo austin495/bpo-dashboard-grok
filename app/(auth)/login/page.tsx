@@ -22,11 +22,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log("Session Status:", status);
+    console.log("Session Data:", session);
+  
     if (status === "authenticated") {
       toast.success("Already logged in! Redirecting...");
       router.replace("/dashboard");
     }
-  }, [status, router]);  
+  }, [status, session, router]);  
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("savedEmail");
@@ -48,10 +51,10 @@ export default function Login() {
     const res = await signIn("credentials", { 
       email, 
       password, 
-      redirect: false // 🚀 Prevent automatic redirection
+      redirect: false // Prevent automatic redirection
     });
   
-    console.log("Sign-in Response:", res); // Debugging Step
+    console.log("Sign-in Response:", res);
   
     if (!res || res.error) {
       toast.error(res?.error || "Invalid email or password.");
@@ -59,18 +62,14 @@ export default function Login() {
       return;
     }
   
-    // 🚀 Force a session update using `getSession()`
-    const updatedSession = await fetch("/api/auth/session").then((res) => res.json());
-    console.log("Updated Session:", updatedSession); // Debugging Step
+    // 🚀 Force session refresh
+    await fetch("/api/auth/session");
   
-    if (!updatedSession || !updatedSession.user) {
-      toast.error("Failed to retrieve session. Please refresh manually.");
-      setLoading(false);
-      return;
-    }
+    setTimeout(() => {
+      router.replace("/dashboard");
+    }, 1500);
   
-    toast.success("Login successful! Redirecting...");
-    router.replace("/dashboard");
+    setLoading(false);
   };
 
   const handleLogout = async () => {
