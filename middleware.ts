@@ -3,7 +3,7 @@ import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
   // 🔹 Define protected routes (pages that require authentication)
-  const protectedRoutes = ["/dashboard", "/profile", "/settings"];
+  const protectedRoutes = ["/profile", "/settings"];
 
   // 🔹 Allow public routes (pages accessible without login)
   const publicRoutes = ["/", "/login", "/signup"];
