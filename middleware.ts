@@ -2,21 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
-  // 🔹 Define protected routes (pages that require authentication)
   const protectedRoutes = ["/dashboard", "/profile", "/settings"];
-
-  // 🔹 Allow public routes (pages accessible without login)
   const publicRoutes = ["/", "/login", "/signup"];
 
+  // Ensure `getToken()` resolves before middleware logic
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-  // 🔹 If the user is NOT logged in and tries to access a protected route, redirect to login
-  if (!token && protectedRoutes.includes(req.nextUrl.pathname)) {
+  const { pathname } = req.nextUrl;
+
+  // Redirect unauthenticated users from protected routes to login
+  if (!token && protectedRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // 🔹 If the user is logged in and tries to access login/signup, redirect to dashboard
-  if (token && publicRoutes.includes(req.nextUrl.pathname)) {
+  // Redirect authenticated users away from login/signup pages
+  if (token && publicRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
