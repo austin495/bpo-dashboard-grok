@@ -43,6 +43,6 @@ export const config = {
      * - api (API routes)
      * - auth (Auth routes)
      */
-    "/((?!api|auth|_next|static|favicon.ico|signup|logoipsum-330.svg).*)",
+    "/((?!api|auth|_next|static|public|favicon.ico|signup).*)",
   ],
 };

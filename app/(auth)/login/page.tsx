@@ -45,19 +45,19 @@ export default function Login() {
     
     setLoading(true);
     const res = await signIn("credentials", { email, password, redirect: false });
-
-    if (res?.error) {
-      toast.error("Invalid email or password.");
+  
+    if (!res || res.error) {
+      toast.error(res?.error || "Invalid email or password.");
       setLoading(false);
       return;
     }
-
+  
     if (rememberMe) {
       localStorage.setItem("savedEmail", email);
     } else {
       localStorage.removeItem("savedEmail");
     }
-
+  
     toast.success("Login successful! Redirecting...");
     setTimeout(() => {
       router.push("/dashboard");
