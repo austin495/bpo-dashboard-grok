@@ -24,7 +24,7 @@ export default function Login() {
   useEffect(() => {
     if (status === "authenticated") {
       toast.success("Already logged in! Redirecting...");
-      router.replace("/dashboard"); // ✅ Immediate redirect
+      router.replace("/dashboard");
     }
   }, [status, router]);  
 
@@ -57,19 +57,25 @@ export default function Login() {
       return;
     }
   
-    // 🚀 Wait for session update before redirecting
-    setTimeout(async () => {
-      await fetch("/api/auth/session"); // Force session refresh
-      toast.success("Login successful! Redirecting...");
-      router.replace("/dashboard"); // ✅ Redirect after session refresh
-    }, 1500);
+    // 🚀 Wait for session update
+    let tries = 0;
+    while (status !== "authenticated" && tries < 10) {
+      await new Promise((r) => setTimeout(r, 500)); // Wait for session update
+      tries++;
+    }
+  
+    toast.success("Login successful! Redirecting...");
+    router.replace("/dashboard"); // ✅ Redirect after session refresh
   };
 
   const handleLogout = async () => {
-    if (loading) return; // Prevent multiple clicks
+    if (loading) return;
     setLoading(true);
+  
     await signOut({ callbackUrl: "/login" });
+  
     toast.success("Logged out successfully!");
+    localStorage.removeItem("savedEmail"); // 🚀 Clear saved email
     setLoading(false);
   };
 

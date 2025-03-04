@@ -43,6 +43,6 @@ export const config = {
      * - api (API routes)
      * - auth (Auth routes)
      */
-    "/((?!api|auth|_next|static|public|favicon.ico|signup).*)",
+    "/((?!api|auth|_next|static|public|favicon.ico|signup|login).*)",
   ],
 };
