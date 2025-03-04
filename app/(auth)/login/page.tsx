@@ -22,14 +22,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log("Session Status:", status);
-    console.log("Session Data:", session);
-  
     if (status === "authenticated") {
       toast.success("Already logged in! Redirecting...");
-      router.replace("/dashboard");
+      setTimeout(() => router.push("/dashboard"), 1500);
     }
-  }, [status, session, router]);  
+  }, [status, router]);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("savedEmail");
@@ -45,42 +42,33 @@ export default function Login() {
       toast.error("Email and password are required.");
       return;
     }
-  
+    
     setLoading(true);
-  
-    const res = await signIn("credentials", { 
-      email, 
-      password, 
-      redirect: false // Prevent automatic redirection
-    });
-  
-    console.log("Sign-in Response:", res);
-  
-    if (!res || res.error) {
-      toast.error(res?.error || "Invalid email or password.");
+    const res = await signIn("credentials", { email, password, redirect: false });
+
+    if (res?.error) {
+      toast.error("Invalid email or password.");
       setLoading(false);
       return;
     }
-  
-    // 🚀 Force session refresh
-    await fetch("/api/auth/session");
-  
+
+    if (rememberMe) {
+      localStorage.setItem("savedEmail", email);
+    } else {
+      localStorage.removeItem("savedEmail");
+    }
+
+    toast.success("Login successful! Redirecting...");
     setTimeout(() => {
-      router.replace("/dashboard");
-    }, 1500);
-  
-    setLoading(false);
+      router.push("/dashboard");
+    }, 2000);
   };
 
   const handleLogout = async () => {
-    if (loading) return;
     setLoading(true);
-  
     await signOut({ callbackUrl: "/login" });
-  
-    toast.success("Logged out successfully!");
-    localStorage.removeItem("savedEmail"); // 🚀 Clear saved email
     setLoading(false);
+    toast.success("Logged out successfully!");
   };
 
   if (status === "authenticated") {

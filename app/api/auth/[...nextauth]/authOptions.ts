@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions, DefaultSession } from 'next-auth';
+import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
@@ -21,7 +21,6 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL_UNPOOLED });
 // 🔹 Extend NextAuth token type
 declare module "next-auth/jwt" {
   interface JWT {
-    id: string;
     name?: string | null;
     email?: string | null;
     image?: string | null;
@@ -32,11 +31,10 @@ declare module "next-auth/jwt" {
 declare module "next-auth" {
   interface Session {
     user: {
-      id: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
-    } & DefaultSession["user"];
+    };
   }
 }
 
@@ -73,34 +71,23 @@ export const authOptions: AuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
-      console.log("JWT Callback Triggered", { token, user });
-  
-      // Persist user data into token when signing in
-      if (user) {
-        token.id = user.id;
-        token.name = user.name ?? null;
-        token.email = user.email ?? null;
-        token.image = user.image ?? null;
-      }
-  
-      return token;
-    },
-  
     async session({ session, token }) {
-      console.log("Session Callback Triggered", { session, token });
-  
-      // Ensure session contains user data
       session.user = {
-        id: token.id ?? null,
         name: token.name ?? null,
         email: token.email ?? null,
         image: token.image ?? null,
       };
-  
       return session;
-    }
-  },  
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.name = user.name ?? null;
+        token.email = user.email ?? null;
+        token.image = user.image ?? null;
+      }
+      return token;
+    },
+  },
 };
 
 export const handler = NextAuth(authOptions);
