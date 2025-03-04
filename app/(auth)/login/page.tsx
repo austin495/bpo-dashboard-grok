@@ -22,11 +22,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && session?.user) {
       toast.success("Already logged in! Redirecting...");
       setTimeout(() => router.push("/dashboard"), 1500);
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("savedEmail");
@@ -65,10 +65,11 @@ export default function Login() {
   };
 
   const handleLogout = async () => {
+    if (loading) return; // Prevent multiple clicks
     setLoading(true);
     await signOut({ callbackUrl: "/login" });
-    setLoading(false);
     toast.success("Logged out successfully!");
+    setLoading(false);
   };
 
   if (status === "authenticated") {
