@@ -44,7 +44,6 @@ export default function Login() {
     }
   
     setLoading(true);
-    console.log("Logging in..."); // Debugging Step
   
     const res = await signIn("credentials", { 
       email, 
@@ -60,24 +59,18 @@ export default function Login() {
       return;
     }
   
-    // 🚀 Wait for session update
-    let attempts = 0;
-    while (status !== "authenticated" && attempts < 10) {
-      console.log(`Waiting for session update... Attempt ${attempts + 1}`); // Debugging Step
-      await new Promise((r) => setTimeout(r, 500)); 
-      attempts++;
+    // 🚀 Force a session update using `getSession()`
+    const updatedSession = await fetch("/api/auth/session").then((res) => res.json());
+    console.log("Updated Session:", updatedSession); // Debugging Step
+  
+    if (!updatedSession || !updatedSession.user) {
+      toast.error("Failed to retrieve session. Please refresh manually.");
+      setLoading(false);
+      return;
     }
   
-    console.log("Session after login:", session); // Debugging Step
-  
-    if (status === "authenticated") {
-      toast.success("Login successful! Redirecting...");
-      router.replace("/dashboard");
-    } else {
-      toast.error("Session did not update. Please refresh manually.");
-    }
-  
-    setLoading(false);
+    toast.success("Login successful! Redirecting...");
+    router.replace("/dashboard");
   };
 
   const handleLogout = async () => {
