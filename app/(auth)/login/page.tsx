@@ -13,7 +13,7 @@ import { toast, Toaster } from 'sonner';
 
 export default function Login() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,26 +42,28 @@ export default function Login() {
       toast.error("Email and password are required.");
       return;
     }
-    
+  
     setLoading(true);
-    const res = await signIn("credentials", { email, password, redirect: false });
+  
+    const res = await signIn("credentials", { 
+      email, 
+      password, 
+      redirect: false // 🚀 Ensure redirect is false so we can manually handle it
+    });
   
     if (!res || res.error) {
       toast.error(res?.error || "Invalid email or password.");
       setLoading(false);
       return;
     }
-  
-    if (rememberMe) {
-      localStorage.setItem("savedEmail", email);
-    } else {
-      localStorage.removeItem("savedEmail");
-    }
+
+    await update?.();
   
     toast.success("Login successful! Redirecting...");
+  
     setTimeout(() => {
-      router.push("/dashboard");
-    }, 2000);
+      router.push("/dashboard"); // 🚀 Manually redirect after session update
+    }, 1500);
   };
 
   const handleLogout = async () => {
