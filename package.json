@@ -40,7 +40,7 @@
     "node-fetch": "^3.3.2",
     "pg": "^8.13.3",
     "react": "^19.0.0",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.5.1",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.54.2",
