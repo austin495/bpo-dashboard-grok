@@ -24,9 +24,7 @@ export default function Login() {
   useEffect(() => {
     if (status === "authenticated") {
       toast.success("Already logged in! Redirecting...");
-      setTimeout(() => {
-        router.replace("/dashboard"); // ✅ Use `replace` to prevent going back to login
-      }, 1000);
+      router.replace("/dashboard"); // ✅ Immediate redirect
     }
   }, [status, router]);  
 
@@ -50,7 +48,7 @@ export default function Login() {
     const res = await signIn("credentials", { 
       email, 
       password, 
-      redirect: false 
+      redirect: false // 🚀 Prevent automatic redirection
     });
   
     if (!res || res.error) {
@@ -59,14 +57,13 @@ export default function Login() {
       return;
     }
   
-    // 🚀 Force session refresh to ensure latest authentication state
-    await fetch("/api/auth/session");
-  
-    toast.success("Login successful! Redirecting...");
-    setTimeout(() => {
-      router.replace("/dashboard"); // ✅ Use `replace` for seamless redirect
-    }, 1000);
-  };  
+    // 🚀 Wait for session update before redirecting
+    setTimeout(async () => {
+      await fetch("/api/auth/session"); // Force session refresh
+      toast.success("Login successful! Redirecting...");
+      router.replace("/dashboard"); // ✅ Redirect after session refresh
+    }, 1500);
+  };
 
   const handleLogout = async () => {
     if (loading) return; // Prevent multiple clicks
