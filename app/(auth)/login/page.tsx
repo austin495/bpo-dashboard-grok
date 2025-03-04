@@ -44,12 +44,15 @@ export default function Login() {
     }
   
     setLoading(true);
+    console.log("Logging in..."); // Debugging Step
   
     const res = await signIn("credentials", { 
       email, 
       password, 
       redirect: false // 🚀 Prevent automatic redirection
     });
+  
+    console.log("Sign-in Response:", res); // Debugging Step
   
     if (!res || res.error) {
       toast.error(res?.error || "Invalid email or password.");
@@ -58,14 +61,23 @@ export default function Login() {
     }
   
     // 🚀 Wait for session update
-    let tries = 0;
-    while (status !== "authenticated" && tries < 10) {
-      await new Promise((r) => setTimeout(r, 500)); // Wait for session update
-      tries++;
+    let attempts = 0;
+    while (status !== "authenticated" && attempts < 10) {
+      console.log(`Waiting for session update... Attempt ${attempts + 1}`); // Debugging Step
+      await new Promise((r) => setTimeout(r, 500)); 
+      attempts++;
     }
   
-    toast.success("Login successful! Redirecting...");
-    router.replace("/dashboard"); // ✅ Redirect after session refresh
+    console.log("Session after login:", session); // Debugging Step
+  
+    if (status === "authenticated") {
+      toast.success("Login successful! Redirecting...");
+      router.replace("/dashboard");
+    } else {
+      toast.error("Session did not update. Please refresh manually.");
+    }
+  
+    setLoading(false);
   };
 
   const handleLogout = async () => {
